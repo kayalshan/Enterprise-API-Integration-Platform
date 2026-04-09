@@ -79,6 +79,66 @@ The platform is engineered as a high-performance, resilient integration backbone
 | Governance        | OpenAPI, AsyncAPI, Schema Registry |
 
 ```
+---
+
+## Role: API & Integration Architect
+
+Responsibilities and Contributions:  
+- Led API-first architecture and event-driven integration design  
+- Defined microservice interactions, canonical models, and transformation layer  
+- Implemented API governance: versioning, lifecycle management, deprecation policies, and contract-first design  
+- Designed Kafka + SQS event-driven communication with DLQ, retries, and idempotency  
+- Built partner onboarding modules: sandbox, mocks, API key automation  
+- Enforced security standards: OAuth2, JWT, Cognito, mTLS, secrets management  
+- Defined infrastructure as code (Terraform) and CI/CD pipelines (Jenkins, AWS CodePipeline)  
+- Mentored developers on best practices and reviewed architectural decisions  
+- Collaborated with stakeholders for high availability, scalability, and maintainability
+
+---
+
+```
+
+## Service Flow
+
+Client / Partner App
+        |
+        v
+API Gateway (auth, versioning, routing)
+        |
+        v
+Core API Microservices ──────────────► Produces Events
+        |                                      |
+        v                                      v
+Transformation Service         Event Orchestration / Saga
+        |
+        v
+Partner Onboarding / Mocks
+
+   ```
+---
+## Sample Input And Expected Output
+
+Keep the root README focused on **high-level** integration behavior. Detailed service-level examples now live inside each service README.
+
+| Service | High-level input | High-level output | Details |
+|---|---|---|---|
+| `core-api-service` | Partner order payload with `orderId` and `partnerId` | `202 Accepted` response with correlation metadata or a validation error | `services/core-api-service/README.md` |
+| `event-orchestration-service` | Domain event envelope for event processing | orchestration progress, compensation details, or validation error | `services/event-orchestration-service/README.md` |
+| `transformation-service` | Generic or versioned partner payload (`v1` / `v2`) | canonical payload enriched with `sourceVersion`, `targetVersion`, and transformation metadata | `services/transformation-service/README.md` |
+| `partner-onboarding-service` | Authenticated partner onboarding request or sandbox probe | partner credentials, sandbox verification, or auth failure | `services/partner-onboarding-service/README.md` |
+---
+### High-level platform I/O flow
+
+```text
+Partner / Client Request
+        ↓
+Core API or Partner Onboarding endpoint
+        ↓
+Transformation and orchestration layers
+        ↓
+Accepted response / canonical payload / onboarding result / event-processing status
+
+```
 
 ---
 
@@ -122,20 +182,13 @@ mvn spring-boot:run
 - Repository contract: `api-platform/contracts/openapi/openapi.yaml`
 - Postman collection: `api-platform/contracts/postman/core-api-service.postman_collection.json`
 
-SEndpointURLSwagger UIhttp://localhost:8080/swagger-ui.htmlOpenAPI JSONhttp://localhost:8080/v3/api-docsRepository Contractapi-platform/contracts/openapi/openapi.yamlPostman Collectionapi-platform/contracts/postman/core-api-service.postman_collection.json
-Spring Profiles
-Each service uses local as the default Spring profile and provides separate configuration files under src/main/resources/:
-ProfileDescriptionlocalLocal developer runtime with localhost dependenciesdevAWS-backed development environmentprodAWS-backed production environment
-To run a service locally with an explicit profile:
-bashmvn -pl services/core-api-service spring-boot:run -Dspring-boot.run.profiles=local
 To run against AWS-backed environments, set SPRING_PROFILES_ACTIVE=dev or SPRING_PROFILES_ACTIVE=prod along with the required AWS environment variables:
-
 AWS_REGION
 AWS_MSK_BOOTSTRAP_SERVERS
 PARTNER_SANDBOX_BASE_URL
 SERVER_PORT
  
-each service now uses `local` as the default Spring profile and provides separate `application-local.yml`, `application-dev.yml`, and `application-prod.yml` files under its `src/main/resources` directory.
+Each service now uses `local` as the default Spring profile and provides separate `application-local.yml`, `application-dev.yml`, and `application-prod.yml` files under its `src/main/resources` directory.
 
 To run a service locally with an explicit profile:
 
@@ -185,62 +238,3 @@ Available modules:
 The `-pl` flag selects the modules to build, and `-am` also builds any required upstream modules from the same reactor.
 
 ---
-
-## Role: API & Integration Architect
-
-Responsibilities and Contributions:  
-- Led API-first architecture and event-driven integration design  
-- Defined microservice interactions, canonical models, and transformation layer  
-- Implemented API governance: versioning, lifecycle management, deprecation policies, and contract-first design  
-- Designed Kafka + SQS event-driven communication with DLQ, retries, and idempotency  
-- Built partner onboarding modules: sandbox, mocks, API key automation  
-- Enforced security standards: OAuth2, JWT, Cognito, mTLS, secrets management  
-- Defined infrastructure as code (Terraform) and CI/CD pipelines (Jenkins, AWS CodePipeline)  
-- Mentored developers on best practices and reviewed architectural decisions  
-- Collaborated with stakeholders for high availability, scalability, and maintainability
-
----
-
-```
-
-## Service Flow
-
-Client / Partner App
-        |
-        v
-API Gateway (auth, versioning, routing)
-        |
-        v
-Core API Microservices ──────────────► Produces Events
-        |                                      |
-        v                                      v
-Transformation Service         Event Orchestration / Saga
-        |
-        v
-Partner Onboarding / Mocks
-
-   ```
-
-## Sample Input And Expected Output
-
-Keep the root README focused on **high-level** integration behavior. Detailed service-level examples now live inside each service README.
-
-| Service | High-level input | High-level output | Details |
-|---|---|---|---|
-| `core-api-service` | Partner order payload with `orderId` and `partnerId` | `202 Accepted` response with correlation metadata or a validation error | `services/core-api-service/README.md` |
-| `event-orchestration-service` | Domain event envelope for event processing | orchestration progress, compensation details, or validation error | `services/event-orchestration-service/README.md` |
-| `transformation-service` | Generic or versioned partner payload (`v1` / `v2`) | canonical payload enriched with `sourceVersion`, `targetVersion`, and transformation metadata | `services/transformation-service/README.md` |
-| `partner-onboarding-service` | Authenticated partner onboarding request or sandbox probe | partner credentials, sandbox verification, or auth failure | `services/partner-onboarding-service/README.md` |
-
-### High-level platform I/O flow
-
-```text
-Partner / Client Request
-        ↓
-Core API or Partner Onboarding endpoint
-        ↓
-Transformation and orchestration layers
-        ↓
-Accepted response / canonical payload / onboarding result / event-processing status
-
-```
