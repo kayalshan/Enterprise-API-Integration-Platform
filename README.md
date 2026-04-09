@@ -122,13 +122,20 @@ mvn spring-boot:run
 - Repository contract: `api-platform/contracts/openapi/openapi.yaml`
 - Postman collection: `api-platform/contracts/postman/core-api-service.postman_collection.json`
 
-Spring profile model across services:
+SEndpointURLSwagger UIhttp://localhost:8080/swagger-ui.htmlOpenAPI JSONhttp://localhost:8080/v3/api-docsRepository Contractapi-platform/contracts/openapi/openapi.yamlPostman Collectionapi-platform/contracts/postman/core-api-service.postman_collection.json
+Spring Profiles
+Each service uses local as the default Spring profile and provides separate configuration files under src/main/resources/:
+ProfileDescriptionlocalLocal developer runtime with localhost dependenciesdevAWS-backed development environmentprodAWS-backed production environment
+To run a service locally with an explicit profile:
+bashmvn -pl services/core-api-service spring-boot:run -Dspring-boot.run.profiles=local
+To run against AWS-backed environments, set SPRING_PROFILES_ACTIVE=dev or SPRING_PROFILES_ACTIVE=prod along with the required AWS environment variables:
 
-- `local`: local developer runtime, local ports, localhost dependencies
-- `dev`: AWS-backed development environment
-- `prod`: AWS-backed production environment
-
-Each service now uses `local` as the default Spring profile and provides separate `application-local.yml`, `application-dev.yml`, and `application-prod.yml` files under its `src/main/resources` directory.
+AWS_REGION
+AWS_MSK_BOOTSTRAP_SERVERS
+PARTNER_SANDBOX_BASE_URL
+SERVER_PORT
+ 
+each service now uses `local` as the default Spring profile and provides separate `application-local.yml`, `application-dev.yml`, and `application-prod.yml` files under its `src/main/resources` directory.
 
 To run a service locally with an explicit profile:
 
@@ -168,48 +175,6 @@ Available local E2E collections:
 - `tests/integration/postman/transformation-service-e2e.postman_collection.json`
 - `tests/integration/postman/partner-onboarding-e2e.postman_collection.json`
 
-Example Newman commands:
-
-```bash
-npx newman run tests/integration/postman/core-api-e2e.postman_collection.json -e tests/integration/postman/local.postman_environment.json
-npx newman run tests/integration/postman/event-orchestration-e2e.postman_collection.json -e tests/integration/postman/local.postman_environment.json
-npx newman run tests/integration/postman/transformation-service-e2e.postman_collection.json -e tests/integration/postman/local.postman_environment.json
-npx newman run tests/integration/postman/partner-onboarding-e2e.postman_collection.json -e tests/integration/postman/local.postman_environment.json
-```
-
-Curl-based E2E smoke runner:
-
-```bash
-chmod +x tests/integration/curl/run-all-services-e2e.sh
-./tests/integration/curl/run-all-services-e2e.sh
-```
-
-Optional custom environment file:
-
-```bash
-E2E_ENV_FILE=tests/integration/curl/e2e.env.example ./tests/integration/curl/run-all-services-e2e.sh
-```
-
-> Note: the core API local collection expects a bearer token in `{{accessToken}}` with `PARTNER` group and `orders.write` scope, while partner onboarding uses `user / changeit-local` for the local Docker profile.
-
-### Dev
-
-Starts the dev-tagged container images and expects AWS/MSK-style environment values.
-
-```bash
-docker compose -f docker-compose.dev.yaml up -d
-```
-
-### Prod
-
-Starts the prod-tagged container images with production-oriented restart and resource settings.
-
-```bash
-docker compose -f docker-compose.prod.yaml up -d
-```
-
-> Use `docker compose down` with the same `-f` file to stop a specific environment stack.
-
 Available modules:
 
 - `services/core-api-service`
@@ -236,110 +201,24 @@ Responsibilities and Contributions:
 
 ---
 
-## Folder Structure
-
-### Service Structure
-
-The runnable codebase currently centers on four Spring Boot services under `services/`.
-
-```text
-services/
-├── core-api-service/
-│   ├── src/main/java/com/company/coreapi/
-│   │   ├── config/
-│   │   ├── controller/
-│   │   ├── event/
-│   │   ├── model/
-│   │   ├── repository/
-│   │   └── service/
-│   ├── src/main/resources/
-│   │   ├── application.yml
-│   │   ├── application-local.yml
-│   │   ├── application-dev.yml
-│   │   ├── application-prod.yml
-│   │   └── logback.xml
-│   ├── src/test/java/
-│   ├── Dockerfile
-│   └── pom.xml
-│
-├── event-orchestration-service/
-│   ├── src/main/java/com/company/orchestration/
-│   │   ├── config/
-│   │   ├── consumer/
-│   │   ├── controller/
-│   │   ├── dlq/
-│   │   ├── model/
-│   │   ├── retry/
-│   │   ├── saga/
-│   │   └── service/
-│   ├── src/main/resources/
-│   │   ├── application.yml
-│   │   ├── application-local.yml
-│   │   ├── application-dev.yml
-│   │   └── application-prod.yml
-│   ├── src/test/java/
-│   ├── Dockerfile
-│   └── pom.xml
-│
-├── transformation-service/
-│   ├── src/main/java/com/company/transformation/
-│   │   ├── config/
-│   │   ├── controller/
-│   │   ├── engine/
-│   │   ├── enrichment/
-│   │   ├── exception/
-│   │   ├── mapper/
-│   │   ├── mappings/
-│   │   ├── model/
-│   │   ├── service/
-│   │   ├── strategy/
-│   │   └── validation/
-│   ├── src/main/resources/
-│   │   ├── application.yml
-│   │   ├── application-local.yml
-│   │   ├── application-dev.yml
-│   │   └── application-prod.yml
-│   ├── src/test/java/
-│   ├── Dockerfile
-│   └── pom.xml
-│
-└── partner-onboarding-service/
-    ├── src/main/java/com/company/partner/
-    │   ├── apikeys/
-    │   ├── config/
-    │   ├── controller/
-    │   ├── mocks/
-    │   ├── model/
-    │   ├── repository/
-    │   ├── sandbox/
-    │   ├── security/
-    │   └── service/
-    ├── src/main/resources/
-    │   ├── application.yml
-    │   ├── application-local.yml
-    │   ├── application-dev.yml
-    │   └── application-prod.yml
-    ├── src/test/java/
-    ├── Dockerfile
-    └── pom.xml
 ```
 
 ## Service Flow
-```text
-   Client / Partner App
+
+Client / Partner App
         |
         v
-   API Gateway (auth, versioning, routing)
+API Gateway (auth, versioning, routing)
         |
         v
-  Core API Microservices  --> Produces Events
-        |                      |
-        v                      v
-  Transformation Service   Event Orchestration / Saga
+Core API Microservices ──────────────► Produces Events
+        |                                      |
+        v                                      v
+Transformation Service         Event Orchestration / Saga
         |
         v
-   Partner Onboarding / Mocks   
-   
+Partner Onboarding / Mocks
+
    ```
 
 ## Sample Input And Expected Output
@@ -356,7 +235,6 @@ Keep the root README focused on **high-level** integration behavior. Detailed se
 ### High-level platform I/O flow
 
 ```text
-
 Partner / Client Request
         ↓
 Core API or Partner Onboarding endpoint
@@ -366,5 +244,3 @@ Transformation and orchestration layers
 Accepted response / canonical payload / onboarding result / event-processing status
 
 ```
-
-For exact request and response samples, refer to the service-specific READMEs and the checked-in OpenAPI/Postman assets under `api-platform/` and `tests/integration/postman/`.
