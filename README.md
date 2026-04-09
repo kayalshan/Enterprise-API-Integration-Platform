@@ -1,5 +1,21 @@
 # Enterprise API & Event-Driven Integration Platform
 
+## Table of Contents
+
+## 📑 Table of Contents
+- [Project Objective](#project-objective)
+- [Problem Statement](#problem-statement)
+- [Why Not Just Use Standard API Gateways](#why-not-just-use-standard-api-gateways)
+- [Architecture Overview](#architecture-overview)
+- [Key Architectural Decisions](#key-architectural-decisions)
+- [Tech Stack](#tech-stack)
+- [Impact](#impact)
+- [Role: API & Integration Architect](#role-api--integration-architect)
+- [Service Flow](#service-flow)
+- [Sample Input and Expected Output](#sample-input-and-expected-output)
+- [Multi-Module Build](#multi-module-build)
+
+  
 ## Project Objective
 To design and implement a scalable, secure, and enterprise-grade API and event-driven integration platform that enables seamless communication between microservices, legacy systems, and external partners, while enforcing API governance, versioning, and backward compatibility. The platform ensures long-term maintainability, high performance, and accelerated partner onboarding.
 
@@ -15,16 +31,9 @@ The objective was to build an API-first, event-driven platform capable of suppor
 
 ---
 
-## Why Not Just Use Apigee/Gravitee?
-These tools handle routing, throttling, authentication, analytics — great for API management.
-But in large enterprise workloads, we need more than just API management:
-Event-driven integration (Kafka/SQS) for asynchronous communication and decoupling
-Canonical data models & transformation layers to ensure consistent data across multiple microservices and legacy systems
-Partner onboarding automation (sandbox, mocks, API keys, contract testing)
-Full governance & versioning beyond what a standard gateway provides
-Distributed resilience patterns (sagas, retries, DLQs, circuit breakers, bulkheads)
-End-to-end observability across synchronous and asynchronous flows
+## Why Not Just Use Standard API Gateways?
 
+- Enterprise systems require event-driven integration, governance, transformation layers, resilience, and observability beyond standard API gateway capabilities.
 ---
 
 Our project builds a platform on top of API Gateway, combining API-first principles, event-driven integration, governance, resilience, and partner onboarding. It’s more than a gateway — it’s an enterprise-grade integration backbone.
@@ -54,15 +63,6 @@ The platform is engineered as a high-performance, resilient integration backbone
 - End-to-End Observability:: OpenTelemetry instrumentation, Prometheus metrics scraping, Grafana dashboards, and alerting for end-to-end visibility  
 ---
 
-## Impact
-- Achieved 99.99% system availability  
-- Reduced API latency by 40%  
-- Scaled to handle 10,000+ TPS (estimated)  
-- Accelerated deployment cycles by 60% using CI/CD automation  
-- Enterprise-grade security with OAuth2, JWT, and Cognito  
-
----
-
 ```text
 
 ## Tech Stack
@@ -80,6 +80,16 @@ The platform is engineered as a high-performance, resilient integration backbone
 
 ```
 ---
+
+## Impact
+- Achieved 99.99% system availability  
+- Reduced API latency by 40%  
+- Scaled to handle 10,000+ TPS (estimated)  
+- Accelerated deployment cycles by 60% using CI/CD automation  
+- Enterprise-grade security with OAuth2, JWT, and Cognito  
+
+---
+
 
 ## Role: API & Integration Architect
 
