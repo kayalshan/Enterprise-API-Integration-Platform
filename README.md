@@ -1,8 +1,6 @@
 # Enterprise API & Event-Driven Integration Platform
-
+ 
 ## Table of Contents
-
-## 📑 Table of Contents
 - [Project Objective](#project-objective)
 - [Problem Statement](#problem-statement)
 - [Why Not Just Use Standard API Gateways](#why-not-just-use-standard-api-gateways)
@@ -60,25 +58,28 @@ The platform is engineered as a high-performance, resilient integration backbone
 - Canonical Models & Transformation Layer: Prevent domain leakage and ensure consistent data mapping  
 - Automated Partner Onboarding: Accelerates: Sandbox, mocks, API key automation  
 - Multi-Layered Resilience: Circuit-breakers, bulkheads, retries, and DLQs for reliable operations  
-- End-to-End Observability:: OpenTelemetry instrumentation, Prometheus metrics scraping, Grafana dashboards, and alerting for end-to-end visibility  
+- End-to-End Observability:: OpenTelemetry instrumentation, Prometheus metrics scraping, Grafana dashboards, and alerting for end-to-end visibility
+  
 ---
 
-```text
-
 ## Tech Stack
-
-| Category           | Technologies |
-|------------------|--------------|
-| Backend           | Java 21, Spring Boot |
-| API Management    | AWS API Gateway |
-| Event Streaming   | Kafka, AWS SQS |
-| Cloud Platform    | AWS (ECS, EKS, Lambda, Cognito) |
-| Containerization  | Docker |
-| Infrastructure IaC| Terraform |
-| CI/CD             | Jenkins, AWS CodePipeline |
-| Governance        | OpenAPI, AsyncAPI, Schema Registry |
-
-```
+ 
+| Category           | Technologies                                                    | Purpose                                                |
+|--------------------|-----------------------------------------------------------------|--------------------------------------------------------|
+| Backend            | Java 21, Spring Boot, Maven                                     | Core microservices, multi-module build                 |
+| API Management     | AWS API Gateway                                                 | Routing, throttling, versioning, SSL termination       |
+| Event Streaming    | Apache Kafka, AWS MSK, AWS SQS, Spring Kafka                    | High-throughput streaming, point-to-point queuing, DLQ |
+| Cloud Platform     | AWS ECS, EKS, Lambda, Cognito                                   | Container runtime, serverless, identity                |
+| Containerisation   | Docker, Kubernetes, Kustomize                                   | Container images, k8s overlays (local/dev/prod)        |
+| Infrastructure IaC | Terraform                                                       | AWS infrastructure provisioning                        |
+| CI/CD              | Jenkins, AWS CodePipeline                                       | Build, test, quality gates, continuous delivery        |
+| Security           | AWS Cognito, OAuth2, JWT, mTLS, Secrets Manager                 | Zero trust, token lifecycle, key rotation              |
+| Observability      | OpenTelemetry, Prometheus, Grafana, Logback                     | Tracing, metrics, dashboards, alerting                 |
+| Governance         | OpenAPI, AsyncAPI, Schema Registry                              | Contract-first design, versioning, lifecycle           |
+| API Testing        | Postman, Swagger UI                                             | Integration tests, REST exploration                    |
+| Resilience         | Circuit breaker, Bulkhead, Saga, Retry, DLQ, Fallback, Timeout | Fault tolerance, distributed reliability               |
+| Testing            | Consumer-driven contracts, Integration tests, Performance tests | End-to-end quality assurance                           |
+ 
 ---
 
 ## Impact
@@ -105,11 +106,8 @@ Responsibilities and Contributions:
 - Collaborated with stakeholders for high availability, scalability, and maintainability
 
 ---
-
-```
-
 ## Service Flow
-
+```text
 Client / Partner App
         |
         v
@@ -123,8 +121,7 @@ Transformation Service         Event Orchestration / Saga
         |
         v
 Partner Onboarding / Mocks
-
-   ```
+```
 ---
 ## Sample Input And Expected Output
 
@@ -136,6 +133,7 @@ Keep the root README focused on **high-level** integration behavior. Detailed se
 | `event-orchestration-service` | Domain event envelope for event processing | orchestration progress, compensation details, or validation error | `services/event-orchestration-service/README.md` |
 | `transformation-service` | Generic or versioned partner payload (`v1` / `v2`) | canonical payload enriched with `sourceVersion`, `targetVersion`, and transformation metadata | `services/transformation-service/README.md` |
 | `partner-onboarding-service` | Authenticated partner onboarding request or sandbox probe | partner credentials, sandbox verification, or auth failure | `services/partner-onboarding-service/README.md` |
+
 ---
 ### High-level platform I/O flow
 
