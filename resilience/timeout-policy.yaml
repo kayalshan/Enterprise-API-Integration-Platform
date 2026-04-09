@@ -1,0 +1,4 @@
+timeout:
+  apiTimeoutMs: 3000
+  adapterTimeoutMs: 2000
+  eventProcessingTimeoutMs: 5000

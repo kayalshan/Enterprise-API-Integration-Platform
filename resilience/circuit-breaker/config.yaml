@@ -1,0 +1,4 @@
+circuitBreaker:
+  failureRateThreshold: 50
+  slidingWindowSize: 100
+  waitDurationInOpenStateMs: 30000

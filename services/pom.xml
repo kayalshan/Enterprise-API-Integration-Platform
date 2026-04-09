@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.enterprise.integration</groupId>
+    <artifactId>enterprise-api-and-event-driven-integration-platform</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>services</artifactId>
+  <packaging>pom</packaging>
+  <name>Services Aggregator</name>
+  <description>Aggregates service modules for the platform build.</description>
+
+  <modules>
+    <module>core-api-service</module>
+    <module>event-orchestration-service</module>
+    <module>partner-onboarding-service</module>
+    <module>transformation-service</module>
+  </modules>
+</project>

@@ -1,0 +1,155 @@
+{
+  "info": {
+    "name": "Partner Onboarding Service",
+    "description": "Postman collection for partner registration, sandbox verification, and runtime OpenAPI discovery. This service currently uses basic auth rather than a Cognito group-gated bearer token.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "{{partnerOnboardingUsername}}",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "{{partnerOnboardingPassword}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Onboard Partner",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Acme Retail\",\n  \"email\": \"integration@acme.example\"\n}"
+        },
+        "url": {
+          "raw": "{{partnerOnboardingBaseUrl}}/partners/onboard",
+          "host": [
+            "{{partnerOnboardingBaseUrl}}"
+          ],
+          "path": [
+            "partners",
+            "onboard"
+          ]
+        },
+        "description": "Creates a partner registration and returns the generated partner identifier and API key."
+      },
+      "response": [
+        {
+          "name": "Partner Onboarded",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme Retail\",\n  \"email\": \"integration@acme.example\"\n}"
+            },
+            "url": {
+              "raw": "{{partnerOnboardingBaseUrl}}/partners/onboard",
+              "host": [
+                "{{partnerOnboardingBaseUrl}}"
+              ],
+              "path": [
+                "partners",
+                "onboard"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"partnerId\": \"3c0f7b36-8415-4e2d-bcab-17a2ba0c6d5b\",\n  \"name\": \"Acme Retail\",\n  \"email\": \"integration@acme.example\",\n  \"apiKey\": \"3c6582cb52c24e24a9d9d2308dcff401\",\n  \"status\": \"ACTIVE\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Check Sandbox Endpoint",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{partnerOnboardingBaseUrl}}/sandbox/test",
+          "host": [
+            "{{partnerOnboardingBaseUrl}}"
+          ],
+          "path": [
+            "sandbox",
+            "test"
+          ]
+        },
+        "description": "Confirms that the partner sandbox endpoint is reachable and returns the sandbox path."
+      },
+      "response": [
+        {
+          "name": "Sandbox Ready",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{partnerOnboardingBaseUrl}}/sandbox/test",
+              "host": [
+                "{{partnerOnboardingBaseUrl}}"
+              ],
+              "path": [
+                "sandbox",
+                "test"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "text",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "text/plain;charset=UTF-8"
+            }
+          ],
+          "body": "Sandbox API is working at /sandbox/v1"
+        }
+      ]
+    },
+    {
+      "name": "Fetch Runtime OpenAPI Docs",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{partnerOnboardingBaseUrl}}/v3/api-docs",
+          "host": [
+            "{{partnerOnboardingBaseUrl}}"
+          ],
+          "path": [
+            "v3",
+            "api-docs"
+          ]
+        },
+        "description": "Retrieves the runtime-generated OpenAPI document exposed by Springdoc."
+      },
+      "response": []
+    }
+  ]
+}

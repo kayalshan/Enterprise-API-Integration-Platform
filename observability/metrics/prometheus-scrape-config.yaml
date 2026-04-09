@@ -1,0 +1,44 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    platform: enterprise-api-integration
+
+scrape_configs:
+  - job_name: core-api-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - core-api-service:8080
+        labels:
+          environment: local
+          domain: ingress
+
+  - job_name: event-orchestration-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - event-orchestration-service:8081
+        labels:
+          environment: local
+          domain: eventing
+
+  - job_name: partner-onboarding-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - partner-onboarding-service:8083
+        labels:
+          environment: local
+          domain: partner
+
+  # Enable this target after exposing `prometheus` in
+  # `services/transformation-service/src/main/resources/application.yml`.
+  # - job_name: transformation-service
+  #   metrics_path: /actuator/prometheus
+  #   static_configs:
+  #     - targets:
+  #         - transformation-service:8082
+  #       labels:
+  #         environment: local
+  #         domain: transformation

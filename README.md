@@ -1,52 +1,370 @@
 # Enterprise API & Event-Driven Integration Platform
 
-A high-performance, resilient integration backbone featuring **API-first governance**, **event-driven orchestration**, and **automated partner onboarding** built with **Java 21** and **AWS**.
+## Project Objective
+To design and implement a scalable, secure, and enterprise-grade API and event-driven integration platform that enables seamless communication between microservices, legacy systems, and external partners, while enforcing API governance, versioning, and backward compatibility. The platform ensures long-term maintainability, high performance, and accelerated partner onboarding.
 
 ---
 
-## Architectural Vision
-This platform serves as an enterprise-grade integration layer designed to decouple microservices from legacy systems while enforcing strict security and governance. Unlike standard API Gateways, this system provides a specialized fabric for:
+## Problem Statement
+Legacy integration systems were tightly coupled, resulting in:  
+- High latency and slow response times  
+- Limited scalability under increasing workloads  
+- Inefficient partner onboarding processes  
 
-* **Dual-Mode Messaging Strategy**: Utilizes **Apache Kafka** for high-throughput stream processing and **AWS SQS** for decoupled, point-to-point task queuing.
-* **Distributed Resilience**: Implementation of **Saga patterns**, Circuit Breakers, and DLQs to ensure 99.99% availability.
-* **Canonical Data Modeling**: Preventing domain leakage by enforcing standardized transformation layers across all integrations.
-* **Zero-Trust Security**: Fine-grained authorization via **AWS Cognito**, **OAuth2**, and **JWT**.
-
----
-
-## Tech Stack
-* **Backend**: Java 21, Spring Boot 3.x.
-* **Messaging**: Apache Kafka (Event Fabric), AWS SQS (Task Queuing).
-* **Cloud & Infrastructure**: AWS (API Gateway, ECS, EKS, Lambda, Cognito), Terraform.
-* **Observability**: OpenTelemetry, Prometheus, Grafana.
-* **Governance**: OpenAPI 3.0, AsyncAPI, Schema Registry.
+The objective was to build an API-first, event-driven platform capable of supporting enterprise-grade workloads with high availability, reliability, and security.
 
 ---
 
-## Repository Structure
-This repo is structured as a **Technical Case Study**. It contains architecture manifests, contract definitions, and pattern samples rather than the full proprietary source code.
+## Why Not Just Use Apigee/Gravitee?
+These tools handle routing, throttling, authentication, analytics — great for API management.
+But in large enterprise workloads, we need more than just API management:
+Event-driven integration (Kafka/SQS) for asynchronous communication and decoupling
+Canonical data models & transformation layers to ensure consistent data across multiple microservices and legacy systems
+Partner onboarding automation (sandbox, mocks, API keys, contract testing)
+Full governance & versioning beyond what a standard gateway provides
+Distributed resilience patterns (sagas, retries, DLQs, circuit breakers, bulkheads)
+End-to-end observability across synchronous and asynchronous flows
+
+---
+
+Our project builds a platform on top of API Gateway, combining API-first principles, event-driven integration, governance, resilience, and partner onboarding. It’s more than a gateway — it’s an enterprise-grade integration backbone.
+
+---
+
+## Architecture Overview
+
+The platform is engineered as a high-performance, resilient integration backbone designed to handle enterprise - scale workloads while maintaining strict governance and security standards. The architecture is decomposed into the following specialized layers:
+
+ - API Management & Entry Layer: Utilizes AWS API Gateway to orchestrate centralized routing, request throttling, and perimeter security.
+ - High-Concurrency Microservices: Built on Java 21 and Spring Boot, leveraging Docker containerization to ensure consistent execution environments across AWS ECS and EKS.
+ - Asynchronous Event Fabric: Employs a dual-mode messaging strategy using Apache Kafka for high - throughput stream processing and AWS SQS for decoupled, point-to-point task queuing.
+ - Identity & Access Governance: Implements a robust "Zero Trust" security model powered by AWS Cognito, OAuth2, and JWT for fine-grained authorization.
+ - Full-Stack Observability: Provides end-to-end visibility through OpenTelemetry for distributed tracing, Prometheus for real-time metrics collection, and Grafana for unified dashboarding and proactive alerting.
+ - Automated Provisioning & Delivery: Drives rapid deployment cycles via Terraform for Infrastructure as Code (IaC), integrated with Jenkins and AWS CodePipeline for continuous delivery.
+ - Enterprise Governance Framework: Enforces long-term stability through OpenAPI/AsyncAPI contract-first design, Canonical Data Models, strict versioning policies, and automated partner onboarding workflows.
+
+---
+
+## Key Architectural Decisions
+- API-First Contracts: OpenAPI + AsyncAPI to enforce consistent API and event contracts  
+- Decoupled Services: Kafka + SQS to improve scalability and fault tolerance  
+- Canonical Models & Transformation Layer: Prevent domain leakage and ensure consistent data mapping  
+- Automated Partner Onboarding: Accelerates: Sandbox, mocks, API key automation  
+- Multi-Layered Resilience: Circuit-breakers, bulkheads, retries, and DLQs for reliable operations  
+- End-to-End Observability:: OpenTelemetry instrumentation, Prometheus metrics scraping, Grafana dashboards, and alerting for end-to-end visibility  
+---
+
+## Impact
+- Achieved 99.99% system availability  
+- Reduced API latency by 40%  
+- Scaled to handle 10,000+ TPS (estimated)  
+- Accelerated deployment cycles by 60% using CI/CD automation  
+- Enterprise-grade security with OAuth2, JWT, and Cognito  
+
+---
 
 ```text
-├── api-platform/          # OpenAPI/AsyncAPI contracts & Gateway policies
-├── deployments/           # K8s manifests (Kustomize) & ECS configurations
-├── infrastructure/        # Terraform IaC modules
-├── resilience/            # Pattern samples for Bulkheads & Circuit Breakers
-├── services/              # Module stubs (Core API, Event Orchestration, Transformation, Onboarding)
-└── tests/                 # Postman E2E suites & Newman integration
+
+## Tech Stack
+
+| Category           | Technologies |
+|------------------|--------------|
+| Backend           | Java 21, Spring Boot |
+| API Management    | AWS API Gateway |
+| Event Streaming   | Kafka, AWS SQS |
+| Cloud Platform    | AWS (ECS, EKS, Lambda, Cognito) |
+| Containerization  | Docker |
+| Infrastructure IaC| Terraform |
+| CI/CD             | Jenkins, AWS CodePipeline |
+| Governance        | OpenAPI, AsyncAPI, Schema Registry |
+
 ```
----
-
-## Architect Contributions  
-* **Designed the Event-Driven Architecture and Saga-based orchestration for multi-service transactions.
-* **Defined the API Governance framework, including versioning policies and backward compatibility checks.
-* **Led the implementation of Infrastructure as Code (IaC) using Terraform for multi-region AWS deployments.
-* **Developed the Automated Partner Onboarding module to streamline external vendor integration.
 
 ---
 
-## Technical Achievements 
+## Multi-Module Build
 
-* **Throughput: Managed 10k+ requests per second with <200ms latency.
-* **Resiliency: Implemented Circuit Breakers (Resilience4j) resulting in 99.9% uptime during downstream vendor outages.
-* **Automation: Reduced partner onboarding time from 2 weeks to 2 hours via a modular integration engine.
+The repository is configured as a standard Maven parent project for all service modules.
+
+- Java version: 21, managed from the parent [pom.xml](pom.xml)
+- Default build: includes every service module in the reactor
+- Selective build: choose only the services you need with Maven project selection
+
+Build all services:
+
+```bash
+mvn clean install
+```
+
+Build a single service:
+
+```bash
+mvn -pl services/core-api-service -am clean install
+```
+
+Build multiple services together:
+
+```bash
+mvn -pl services/core-api-service,services/transformation-service -am clean install
+```
+
+Swagger/OpenAPI for the core API service:
+
+```bash
+cd services/core-api-service
+export JAVA_HOME=/usr/local/sdkman/candidates/java/21.0.9-ms
+export PATH="$JAVA_HOME/bin:$PATH"
+mvn spring-boot:run
+```
+
+- Swagger UI: `http://localhost:8080/swagger-ui.html`
+- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
+- Repository contract: `api-platform/contracts/openapi/openapi.yaml`
+- Postman collection: `api-platform/contracts/postman/core-api-service.postman_collection.json`
+
+Spring profile model across services:
+
+- `local`: local developer runtime, local ports, localhost dependencies
+- `dev`: AWS-backed development environment
+- `prod`: AWS-backed production environment
+
+Each service now uses `local` as the default Spring profile and provides separate `application-local.yml`, `application-dev.yml`, and `application-prod.yml` files under its `src/main/resources` directory.
+
+To run a service locally with an explicit profile:
+
+```bash
+mvn -pl services/core-api-service spring-boot:run -Dspring-boot.run.profiles=local
+```
+
+To run against AWS-backed environments, set `SPRING_PROFILES_ACTIVE=dev` or `SPRING_PROFILES_ACTIVE=prod` together with the required AWS environment variables such as `AWS_REGION`, `AWS_MSK_BOOTSTRAP_SERVERS`, `PARTNER_SANDBOX_BASE_URL`, and `SERVER_PORT`.
+
+Actuator health endpoints:
+
+- `http://localhost:8080/actuator/health`
+- `http://localhost:8081/actuator/health`
+- `http://localhost:8082/actuator/health`
+- `http://localhost:8083/actuator/health`
+
+Run the platform with the environment-specific Docker Compose files:
+
+### Local
+
+Builds the services from source and starts a local Kafka broker.
+
+```bash
+docker compose -f docker-compose.local.yaml up --build
+```
+
+#### Postman collections for local testing
+
+Use the checked-in environment file:
+
+- `tests/integration/postman/local.postman_environment.json`
+
+Available local E2E collections:
+
+- `tests/integration/postman/core-api-e2e.postman_collection.json`
+- `tests/integration/postman/event-orchestration-e2e.postman_collection.json`
+- `tests/integration/postman/transformation-service-e2e.postman_collection.json`
+- `tests/integration/postman/partner-onboarding-e2e.postman_collection.json`
+
+Example Newman commands:
+
+```bash
+npx newman run tests/integration/postman/core-api-e2e.postman_collection.json -e tests/integration/postman/local.postman_environment.json
+npx newman run tests/integration/postman/event-orchestration-e2e.postman_collection.json -e tests/integration/postman/local.postman_environment.json
+npx newman run tests/integration/postman/transformation-service-e2e.postman_collection.json -e tests/integration/postman/local.postman_environment.json
+npx newman run tests/integration/postman/partner-onboarding-e2e.postman_collection.json -e tests/integration/postman/local.postman_environment.json
+```
+
+Curl-based E2E smoke runner:
+
+```bash
+chmod +x tests/integration/curl/run-all-services-e2e.sh
+./tests/integration/curl/run-all-services-e2e.sh
+```
+
+Optional custom environment file:
+
+```bash
+E2E_ENV_FILE=tests/integration/curl/e2e.env.example ./tests/integration/curl/run-all-services-e2e.sh
+```
+
+> Note: the core API local collection expects a bearer token in `{{accessToken}}` with `PARTNER` group and `orders.write` scope, while partner onboarding uses `user / changeit-local` for the local Docker profile.
+
+### Dev
+
+Starts the dev-tagged container images and expects AWS/MSK-style environment values.
+
+```bash
+docker compose -f docker-compose.dev.yaml up -d
+```
+
+### Prod
+
+Starts the prod-tagged container images with production-oriented restart and resource settings.
+
+```bash
+docker compose -f docker-compose.prod.yaml up -d
+```
+
+> Use `docker compose down` with the same `-f` file to stop a specific environment stack.
+
+Available modules:
+
+- `services/core-api-service`
+- `services/event-orchestration-service`
+- `services/transformation-service`
+- `services/partner-onboarding-service`
+
+The `-pl` flag selects the modules to build, and `-am` also builds any required upstream modules from the same reactor.
+
 ---
+
+## Role: API & Integration Architect
+
+Responsibilities and Contributions:  
+- Led API-first architecture and event-driven integration design  
+- Defined microservice interactions, canonical models, and transformation layer  
+- Implemented API governance: versioning, lifecycle management, deprecation policies, and contract-first design  
+- Designed Kafka + SQS event-driven communication with DLQ, retries, and idempotency  
+- Built partner onboarding modules: sandbox, mocks, API key automation  
+- Enforced security standards: OAuth2, JWT, Cognito, mTLS, secrets management  
+- Defined infrastructure as code (Terraform) and CI/CD pipelines (Jenkins, AWS CodePipeline)  
+- Mentored developers on best practices and reviewed architectural decisions  
+- Collaborated with stakeholders for high availability, scalability, and maintainability
+
+---
+
+## Folder Structure
+
+### Service Structure
+
+The runnable codebase currently centers on four Spring Boot services under `services/`.
+
+```text
+services/
+├── core-api-service/
+│   ├── src/main/java/com/company/coreapi/
+│   │   ├── config/
+│   │   ├── controller/
+│   │   ├── event/
+│   │   ├── model/
+│   │   ├── repository/
+│   │   └── service/
+│   ├── src/main/resources/
+│   │   ├── application.yml
+│   │   ├── application-local.yml
+│   │   ├── application-dev.yml
+│   │   ├── application-prod.yml
+│   │   └── logback.xml
+│   ├── src/test/java/
+│   ├── Dockerfile
+│   └── pom.xml
+│
+├── event-orchestration-service/
+│   ├── src/main/java/com/company/orchestration/
+│   │   ├── config/
+│   │   ├── consumer/
+│   │   ├── controller/
+│   │   ├── dlq/
+│   │   ├── model/
+│   │   ├── retry/
+│   │   ├── saga/
+│   │   └── service/
+│   ├── src/main/resources/
+│   │   ├── application.yml
+│   │   ├── application-local.yml
+│   │   ├── application-dev.yml
+│   │   └── application-prod.yml
+│   ├── src/test/java/
+│   ├── Dockerfile
+│   └── pom.xml
+│
+├── transformation-service/
+│   ├── src/main/java/com/company/transformation/
+│   │   ├── config/
+│   │   ├── controller/
+│   │   ├── engine/
+│   │   ├── enrichment/
+│   │   ├── exception/
+│   │   ├── mapper/
+│   │   ├── mappings/
+│   │   ├── model/
+│   │   ├── service/
+│   │   ├── strategy/
+│   │   └── validation/
+│   ├── src/main/resources/
+│   │   ├── application.yml
+│   │   ├── application-local.yml
+│   │   ├── application-dev.yml
+│   │   └── application-prod.yml
+│   ├── src/test/java/
+│   ├── Dockerfile
+│   └── pom.xml
+│
+└── partner-onboarding-service/
+    ├── src/main/java/com/company/partner/
+    │   ├── apikeys/
+    │   ├── config/
+    │   ├── controller/
+    │   ├── mocks/
+    │   ├── model/
+    │   ├── repository/
+    │   ├── sandbox/
+    │   ├── security/
+    │   └── service/
+    ├── src/main/resources/
+    │   ├── application.yml
+    │   ├── application-local.yml
+    │   ├── application-dev.yml
+    │   └── application-prod.yml
+    ├── src/test/java/
+    ├── Dockerfile
+    └── pom.xml
+```
+
+## Service Flow
+```text
+   Client / Partner App
+        |
+        v
+   API Gateway (auth, versioning, routing)
+        |
+        v
+  Core API Microservices  --> Produces Events
+        |                      |
+        v                      v
+  Transformation Service   Event Orchestration / Saga
+        |
+        v
+   Partner Onboarding / Mocks   
+   
+   ```
+
+## Sample Input And Expected Output
+
+Keep the root README focused on **high-level** integration behavior. Detailed service-level examples now live inside each service README.
+
+| Service | High-level input | High-level output | Details |
+|---|---|---|---|
+| `core-api-service` | Partner order payload with `orderId` and `partnerId` | `202 Accepted` response with correlation metadata or a validation error | `services/core-api-service/README.md` |
+| `event-orchestration-service` | Domain event envelope for event processing | orchestration progress, compensation details, or validation error | `services/event-orchestration-service/README.md` |
+| `transformation-service` | Generic or versioned partner payload (`v1` / `v2`) | canonical payload enriched with `sourceVersion`, `targetVersion`, and transformation metadata | `services/transformation-service/README.md` |
+| `partner-onboarding-service` | Authenticated partner onboarding request or sandbox probe | partner credentials, sandbox verification, or auth failure | `services/partner-onboarding-service/README.md` |
+
+### High-level platform I/O flow
+
+```text
+
+Partner / Client Request
+        ↓
+Core API or Partner Onboarding endpoint
+        ↓
+Transformation and orchestration layers
+        ↓
+Accepted response / canonical payload / onboarding result / event-processing status
+
+```
+
+For exact request and response samples, refer to the service-specific READMEs and the checked-in OpenAPI/Postman assets under `api-platform/` and `tests/integration/postman/`.

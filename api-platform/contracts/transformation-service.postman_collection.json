@@ -1,0 +1,165 @@
+{
+  "info": {
+    "name": "Transformation Service",
+    "description": "Postman collection for canonical payload transformation, version-specific mappings, OpenAPI discovery, and health checks.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Check Service Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{transformationBaseUrl}}{{healthPath}}",
+          "host": [
+            "{{transformationBaseUrl}}"
+          ],
+          "path": [
+            "actuator",
+            "health"
+          ]
+        },
+        "description": "Validates that the transformation service actuator health endpoint is reachable."
+      },
+      "response": []
+    },
+    {
+      "name": "Transform Generic Payload",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sourceSystem\": \"partner-portal\",\n  \"version\": \"v1\",\n  \"payload\": {\n    \"partnerId\": \"P-1001\",\n    \"partnerName\": \"Acme Supplies\",\n    \"contactEmail\": \"ops@acme.example\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{transformationBaseUrl}}/api/transformations",
+          "host": [
+            "{{transformationBaseUrl}}"
+          ],
+          "path": [
+            "api",
+            "transformations"
+          ]
+        },
+        "description": "Transforms an arbitrary partner payload into the canonical response envelope."
+      },
+      "response": []
+    },
+    {
+      "name": "Transform V1 Payload",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sourceSystem\": \"legacy-portal\",\n  \"partnerId\": \"P-2001\",\n  \"partnerName\": \"Legacy Supplies\",\n  \"contactEmail\": \"legacy@acme.example\"\n}"
+        },
+        "url": {
+          "raw": "{{transformationBaseUrl}}/api/transformations/v1",
+          "host": [
+            "{{transformationBaseUrl}}"
+          ],
+          "path": [
+            "api",
+            "transformations",
+            "v1"
+          ]
+        },
+        "description": "Exercises the version-specific v1 transformation route."
+      },
+      "response": []
+    },
+    {
+      "name": "Transform V2 Payload",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sourceSystem\": \"modern-portal\",\n  \"partnerId\": \"P-3001\",\n  \"displayName\": \"Modern Supplies\",\n  \"contactEmail\": \"modern@acme.example\",\n  \"region\": \"us-east-1\"\n}"
+        },
+        "url": {
+          "raw": "{{transformationBaseUrl}}/api/transformations/v2",
+          "host": [
+            "{{transformationBaseUrl}}"
+          ],
+          "path": [
+            "api",
+            "transformations",
+            "v2"
+          ]
+        },
+        "description": "Exercises the version-specific v2 transformation route."
+      },
+      "response": []
+    },
+    {
+      "name": "Fetch Runtime OpenAPI Docs",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{transformationBaseUrl}}{{openApiDocsPath}}",
+          "host": [
+            "{{transformationBaseUrl}}"
+          ],
+          "path": [
+            "v3",
+            "api-docs"
+          ]
+        },
+        "description": "Retrieves the runtime-generated OpenAPI document exposed by Springdoc."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "cognitoGroup",
+      "value": "PARTNER"
+    },
+    {
+      "key": "transformationBaseUrl",
+      "value": "http://localhost:8082"
+    },
+    {
+      "key": "healthPath",
+      "value": "/actuator/health"
+    },
+    {
+      "key": "openApiDocsPath",
+      "value": "/v3/api-docs"
+    }
+  ]
+}

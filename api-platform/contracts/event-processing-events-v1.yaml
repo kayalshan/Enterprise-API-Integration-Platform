@@ -1,0 +1,113 @@
+asyncapi: 2.6.0
+info:
+  title: Event Processing Events
+  version: 1.0.0
+  description: Generic event contracts for distributed integration processing.
+defaultContentType: application/json
+channels:
+  resource.updated.v1:
+    subscribe:
+      message:
+        $ref: '#/components/messages/ResourceUpdated'
+  orchestration.processing.started.v1:
+    subscribe:
+      message:
+        $ref: '#/components/messages/ProcessingStarted'
+  orchestration.processing.failed.v1:
+    subscribe:
+      message:
+        $ref: '#/components/messages/ProcessingFailed'
+components:
+  messages:
+    ResourceUpdated:
+      name: ResourceUpdated
+      payload:
+        $ref: '#/components/schemas/IntegrationEvent'
+    ProcessingStarted:
+      name: ProcessingStarted
+      payload:
+        $ref: '#/components/schemas/ProcessingStartedEvent'
+    ProcessingFailed:
+      name: ProcessingFailed
+      payload:
+        $ref: '#/components/schemas/ProcessingFailedEvent'
+  schemas:
+    IntegrationEvent:
+      type: object
+      required: [eventId, eventType, resourceId, sourceSystem, occurredAt, payload]
+      properties:
+        eventId:
+          type: string
+          example: evt-1001
+        eventType:
+          type: string
+          example: resource.updated.v1
+        resourceId:
+          type: string
+          example: resource-42
+        sourceSystem:
+          type: string
+          example: crm
+        occurredAt:
+          type: string
+          format: date-time
+        payload:
+          type: object
+          additionalProperties: true
+          example:
+            status: ACTIVE
+            region: eu-west-1
+    ProcessingStartedEvent:
+      type: object
+      required: [eventId, eventType, resourceId, correlationId, occurredAt]
+      properties:
+        eventId:
+          type: string
+          example: evt-1001
+        eventType:
+          type: string
+          enum: [orchestration.processing.started.v1]
+        resourceId:
+          type: string
+          example: resource-42
+        correlationId:
+          type: string
+          example: 5f0c6a4b-d7a1-4f16-9bf1-a6c81293f2bc
+        occurredAt:
+          type: string
+          format: date-time
+        executedSteps:
+          type: array
+          items:
+            type: string
+          example: [validate-event, enrich-payload, dispatch-downstream]
+    ProcessingFailedEvent:
+      type: object
+      required: [eventId, eventType, resourceId, correlationId, occurredAt, reason]
+      properties:
+        eventId:
+          type: string
+          example: evt-1002
+        eventType:
+          type: string
+          enum: [orchestration.processing.failed.v1]
+        resourceId:
+          type: string
+          example: resource-42
+        correlationId:
+          type: string
+          example: 9ad19f16-5f4d-4490-bc82-9d834adc8920
+        occurredAt:
+          type: string
+          format: date-time
+        failedStep:
+          type: string
+          example: dispatch-downstream
+        reason:
+          type: string
+          example: Downstream dispatch rejected the event
+        compensations:
+          type: array
+          items:
+            type: string
+          example: [revert-enrichment, cancel-dispatch]

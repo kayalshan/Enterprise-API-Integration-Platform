@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: platform-runtime-config
+  namespace: local
+data:
+  SPRING_PROFILES_ACTIVE: local
+  AWS_REGION: us-east-1
+  AWS_MSK_BOOTSTRAP_SERVERS: kafka:9092
+  PARTNER_SANDBOX_BASE_URL: http://partner-onboarding-service:8083/sandbox/v1

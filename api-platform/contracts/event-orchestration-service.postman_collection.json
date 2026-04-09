@@ -1,0 +1,108 @@
+{
+  "info": {
+    "name": "Event Orchestration Service",
+    "_postman_id": "66c45c58-c697-4e88-9f8c-d3fcb72b31b9",
+    "description": "Requests for exercising the domain-neutral event orchestration endpoint with an optional Cognito bearer token for secured environments.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Trigger Successful Event Processing",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"eventId\": \"evt-1001\",\n  \"eventType\": \"customer.updated.v1\",\n  \"resourceId\": \"resource-42\",\n  \"sourceSystem\": \"crm\",\n  \"payload\": {\n    \"status\": \"ACTIVE\",\n    \"region\": \"eu-west-1\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/orchestrations/event-processing",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "orchestrations",
+            "event-processing"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Trigger Compensation Flow",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"eventId\": \"evt-1002\",\n  \"eventType\": \"customer.updated.v1\",\n  \"resourceId\": \"resource-99\",\n  \"sourceSystem\": \"crm\",\n  \"payload\": {\n    \"status\": \"SUSPENDED\"\n  },\n  \"simulateFailureStep\": \"dispatch-downstream\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/orchestrations/event-processing",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "orchestrations",
+            "event-processing"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Fetch OpenAPI Docs",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/v3/api-docs",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v3",
+            "api-docs"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "cognitoGroup",
+      "value": "PARTNER"
+    },
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081"
+    }
+  ]
+}

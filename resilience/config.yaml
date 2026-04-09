@@ -1,0 +1,3 @@
+bulkhead:
+  maxConcurrentCalls: 50
+  maxWaitDurationMs: 100

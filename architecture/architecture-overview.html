@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enterprise API & Event-Driven Integration Platform — Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0a0c10;
+  --surface:#111318;
+  --surface2:#171b22;
+  --border:#1f2533;
+  --border2:#2a3347;
+
+  --teal:#1aab7a; --teal-dim:#0d6b4c; --teal-bg:rgba(26,171,122,0.08);
+  --blue:#3b8fe8; --blue-dim:#1a5fa5; --blue-bg:rgba(59,143,232,0.08);
+  --amber:#e8a43b; --amber-dim:#a56a10; --amber-bg:rgba(232,164,59,0.08);
+  --coral:#e8603b; --coral-dim:#a53a1a; --coral-bg:rgba(232,96,59,0.08);
+  --purple:#8b6be8; --purple-dim:#5a3fa5; --purple-bg:rgba(139,107,232,0.08);
+  --green:#5cb85c; --green-dim:#2e7d32; --green-bg:rgba(92,184,92,0.08);
+  --gray:#8892a4; --gray-dim:#3d4657; --gray-bg:rgba(136,146,164,0.07);
+
+  --text-primary:#e2e8f4;
+  --text-secondary:#8892a4;
+  --text-muted:#4a5570;
+}
+
+body{
+  background:var(--bg);
+  color:var(--text-primary);
+  font-family:'DM Sans',sans-serif;
+  min-height:100vh;
+  padding:32px 20px 60px;
+}
+
+header{
+  max-width:1280px;
+  margin:0 auto 32px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  border-bottom:1px solid var(--border2);
+  padding-bottom:24px;
+}
+
+.badge{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  letter-spacing:.1em;
+  color:var(--teal);
+  border:1px solid var(--teal-dim);
+  background:var(--teal-bg);
+  padding:3px 10px;
+  border-radius:3px;
+  display:inline-block;
+  width:fit-content;
+}
+
+h1{font-size:22px;font-weight:500;line-height:1.3;color:var(--text-primary)}
+.meta{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted);letter-spacing:.04em}
+.kpi-row{display:flex;gap:24px;flex-wrap:wrap;margin-top:4px}
+.kpi{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-secondary)}
+.kpi span{color:var(--teal);font-weight:600}
+
+.diagram-wrap{
+  max-width:1280px;
+  margin:0 auto;
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:12px;
+  overflow:hidden;
+  padding:28px 20px 20px;
+}
+
+svg{display:block;width:100%;height:auto}
+
+/* Tooltip */
+#tip{
+  position:fixed;
+  background:rgba(10,12,16,0.96);
+  border:1px solid var(--border2);
+  color:var(--text-primary);
+  padding:8px 12px;
+  border-radius:6px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  line-height:1.6;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .15s;
+  z-index:999;
+  max-width:260px;
+  white-space:pre-line;
+}
+
+footer{
+  max-width:1280px;
+  margin:20px auto 0;
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  color:var(--text-muted);
+}
+.leg{display:flex;align-items:center;gap:6px}
+.leg-dot{width:10px;height:10px;border-radius:2px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">ARCHITECTURE OVERVIEW · ENTERPRISE PLATFORM</div>
+  <h1>Enterprise API &amp; Event-Driven Integration Platform</h1>
+  <div class="meta">Java 21 · Spring Boot · AWS ECS/EKS · Kubernetes · Kafka · SQS · Terraform · OpenAPI/AsyncAPI</div>
+  <div class="kpi-row">
+    <div class="kpi">Availability <span>99.99%</span></div>
+    <div class="kpi">Latency reduction <span>40%</span></div>
+    <div class="kpi">Throughput <span>10K+ TPS</span></div>
+    <div class="kpi">Deploy cycle <span>60% faster</span></div>
+  </div>
+</header>
+
+<div class="diagram-wrap">
+<div id="tip"></div>
+
+<svg viewBox="0 0 1260 1110" xmlns="http://www.w3.org/2000/svg" font-family="'DM Sans',sans-serif">
+<defs>
+  <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<!-- ══════════════════════════════════════════════════════
+     COLUMN 1 — ENTRY LAYER  (x: 20..230)
+     ══════════════════════════════════════════════════════ -->
+
+<!-- Zone border -->
+<rect x="20" y="20" width="210" height="820" rx="10" fill="none" stroke="#1f2533" stroke-width="1" stroke-dasharray="5 3"/>
+<text x="125" y="42" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#4a5570" letter-spacing=".06em">ENTRY LAYER</text>
+
+<!-- Client / Partner -->
+<rect x="35" y="56" width="180" height="56" rx="7" fill="#12161e" stroke="#3b8fe8" stroke-width="1" class="node" data-tip="Client / Partner App&#10;Web · Mobile · External partners&#10;Authenticated via OAuth2 / JWT / Cognito"/>
+<text x="125" y="80" text-anchor="middle" font-size="13" font-weight="500" fill="#85b7eb">Client / Partner app</text>
+<text x="125" y="97" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#378add">Web · Mobile · External</text>
+
+<!-- Arrow -->
+<line x1="125" y1="112" x2="125" y2="148" stroke="#3b8fe8" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+<!-- AWS API Gateway -->
+<rect x="35" y="148" width="180" height="72" rx="7" fill="#12161e" stroke="#1aab7a" stroke-width="1.5" class="node" data-tip="AWS API Gateway&#10;• Centralized routing &amp; versioning&#10;• Request throttling (10K+ TPS)&#10;• OAuth2 / JWT enforcement&#10;• OpenAPI contract-first design&#10;• API key management"/>
+<text x="125" y="175" text-anchor="middle" font-size="13" font-weight="500" fill="#5dcaa5">AWS API Gateway</text>
+<text x="125" y="192" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#1d9e75">Auth · versioning · routing</text>
+<text x="125" y="207" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#1d9e75">throttling · governance</text>
+
+<!-- Arrow -->
+<line x1="125" y1="220" x2="125" y2="256" stroke="#1aab7a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+<!-- Governance box -->
+<rect x="35" y="256" width="180" height="72" rx="7" fill="#12161e" stroke="#8b6be8" stroke-width="1" class="node" data-tip="API Governance &amp; Contracts&#10;• OpenAPI contract-first design&#10;• AsyncAPI for event schemas&#10;• Versioning strategy (v1/v2)&#10;• Deprecation &amp; lifecycle policies&#10;• Schema Registry (Avro/JSON)"/>
+<text x="125" y="282" text-anchor="middle" font-size="13" font-weight="500" fill="#b09de8">Governance &amp; contracts</text>
+<text x="125" y="299" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#8b6be8">OpenAPI · AsyncAPI</text>
+<text x="125" y="314" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#8b6be8">versioning · schema reg.</text>
+
+<!-- Arrow -->
+<line x1="125" y1="328" x2="125" y2="364" stroke="#8b6be8" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+<!-- Partner Onboarding -->
+<rect x="35" y="364" width="180" height="72" rx="7" fill="#12161e" stroke="#e8a43b" stroke-width="1" class="node" data-tip="Partner Onboarding Service&#10;• API key automation&#10;• Sandbox &amp; mock environments&#10;• Consumer-driven contract tests&#10;• Self-service documentation&#10;• Postman collections"/>
+<text x="125" y="390" text-anchor="middle" font-size="13" font-weight="500" fill="#e8c07a">Partner onboarding</text>
+<text x="125" y="407" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#e8a43b">sandbox · mocks</text>
+<text x="125" y="422" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#e8a43b">API keys · contracts</text>
+
+<!-- Security -->
+<rect x="35" y="468" width="180" height="88" rx="7" fill="#12161e" stroke="#e8603b" stroke-width="1" class="node" data-tip="Security Layer — Zero Trust&#10;• AWS Cognito identity provider&#10;• OAuth2 + JWT token validation&#10;• mTLS service-to-service&#10;• AWS Secrets Manager / Vault&#10;• IAM fine-grained access control"/>
+<text x="125" y="494" text-anchor="middle" font-size="13" font-weight="500" fill="#e8907a">Security — Zero Trust</text>
+<text x="125" y="511" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#e8603b">Cognito · OAuth2 · JWT</text>
+<text x="125" y="526" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#e8603b">mTLS · IAM · Secrets</text>
+<text x="125" y="541" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#e8603b">Manager / Vault</text>
+
+<!-- ══════════════════════════════════════════════════════
+     COLUMN 2 — SERVICES LAYER  (x: 255..620)
+     ══════════════════════════════════════════════════════ -->
+
+<rect x="255" y="20" width="370" height="820" rx="10" fill="none" stroke="#1f2533" stroke-width="1" stroke-dasharray="5 3"/>
+<text x="440" y="42" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#4a5570" letter-spacing=".06em">MICROSERVICES LAYER  ·  Java 21 · Spring Boot · Docker · ECS / EKS</text>
+
+<!-- Core API Service -->
+<rect x="270" y="56" width="340" height="80" rx="8" fill="#12161e" stroke="#1aab7a" stroke-width="1.5" class="node" data-tip="Core API Service&#10;• Primary request handler (REST)&#10;• Partner order processing&#10;• 202 Accepted + correlation ID&#10;• Produces domain events to Kafka&#10;• Spring Boot · Java 21 · Docker"/>
+<text x="440" y="83" text-anchor="middle" font-size="14" font-weight="500" fill="#5dcaa5">Core API service</text>
+<text x="440" y="101" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#1d9e75">REST · order processing · event producer</text>
+<text x="440" y="117" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#0d6b4c">:8080  ·  /actuator/health</text>
+
+<!-- Arrow Core → Transformation -->
+<line x1="440" y1="136" x2="440" y2="172" stroke="#1aab7a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+<!-- Transformation Service -->
+<rect x="270" y="172" width="340" height="88" rx="8" fill="#12161e" stroke="#8b6be8" stroke-width="1.5" class="node" data-tip="Transformation Service&#10;• Canonical Data Model engine&#10;• v1 → v2 payload mapping&#10;• Anti-corruption layer&#10;• Enrichment + validation&#10;• Prevents domain leakage&#10;• :8082 / actuator/health"/>
+<text x="440" y="200" text-anchor="middle" font-size="14" font-weight="500" fill="#b09de8">Transformation service</text>
+<text x="440" y="218" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#8b6be8">Canonical models · mapping engine</text>
+<text x="440" y="234" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#8b6be8">anti-corruption · enrichment</text>
+<text x="440" y="250" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#5a3fa5">:8082  ·  v1 / v2 versioned payloads</text>
+
+<!-- Arrow Transformation → Event Orch -->
+<line x1="440" y1="260" x2="440" y2="296" stroke="#8b6be8" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+<!-- Event Orchestration Service -->
+<rect x="270" y="296" width="340" height="96" rx="8" fill="#12161e" stroke="#e8a43b" stroke-width="1.5" class="node" data-tip="Event Orchestration Service&#10;• Kafka consumer + producer&#10;• Saga pattern (choreography)&#10;• Circuit breaker · bulkhead&#10;• Retry + DLQ handling&#10;• Idempotency guarantees&#10;• :8081 / actuator/health"/>
+<text x="440" y="324" text-anchor="middle" font-size="14" font-weight="500" fill="#e8c07a">Event orchestration service</text>
+<text x="440" y="342" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#e8a43b">Kafka consumer · Saga · circuit breaker</text>
+<text x="440" y="358" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#e8a43b">bulkhead · retry · DLQ · idempotency</text>
+<text x="440" y="374" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#a56a10">:8081  ·  /actuator/health</text>
+
+<!-- Arrow Event Orch → Partner Onboarding svc -->
+<line x1="440" y1="392" x2="440" y2="428" stroke="#e8a43b" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+<!-- Partner Onboarding Service -->
+<rect x="270" y="428" width="340" height="80" rx="8" fill="#12161e" stroke="#3b8fe8" stroke-width="1" class="node" data-tip="Partner Onboarding Service&#10;• API key generation &amp; rotation&#10;• Sandbox environment&#10;• Mock server for testing&#10;• Consumer-driven contract tests&#10;• :8083 / actuator/health"/>
+<text x="440" y="456" text-anchor="middle" font-size="14" font-weight="500" fill="#85b7eb">Partner onboarding service</text>
+<text x="440" y="474" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#3b8fe8">API keys · sandbox · mocks</text>
+<text x="440" y="490" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#1a5fa5">:8083  ·  /actuator/health</text>
+
+<!-- Resilience zone -->
+<rect x="270" y="534" width="340" height="64" rx="8" fill="rgba(232,96,59,0.05)" stroke="#e8603b" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="440" y="558" text-anchor="middle" font-size="12" font-weight="500" fill="#e8907a">Resilience patterns</text>
+<text x="440" y="575" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#e8603b">Circuit breaker · bulkhead · fallback · timeout · retry</text>
+
+<!-- Integration layer -->
+<rect x="270" y="618" width="340" height="64" rx="8" fill="rgba(139,107,232,0.05)" stroke="#8b6be8" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="440" y="642" text-anchor="middle" font-size="12" font-weight="500" fill="#b09de8">Integration layer</text>
+<text x="440" y="659" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#8b6be8">Adapters · anti-corruption · saga · orchestration</text>
+
+<!-- ══════════════════════════════════════════════════════
+     COLUMN 3 — EVENT & DATA LAYER  (x: 650..870)
+     ══════════════════════════════════════════════════════ -->
+
+<rect x="650" y="20" width="220" height="820" rx="10" fill="none" stroke="#1f2533" stroke-width="1" stroke-dasharray="5 3"/>
+<text x="760" y="42" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#4a5570" letter-spacing=".06em">EVENT &amp; DATA</text>
+
+<!-- Kafka -->
+<rect x="665" y="56" width="190" height="100" rx="8" fill="#12161e" stroke="#e8a43b" stroke-width="1.5" class="node" data-tip="Apache Kafka (AWS MSK)&#10;• High-throughput event streaming&#10;• Topic-based decoupling&#10;• Domain events between services&#10;• Schema Registry (Avro/JSON)&#10;• AsyncAPI contracts&#10;• Producers + consumers"/>
+<text x="760" y="85" text-anchor="middle" font-size="13" font-weight="500" fill="#e8c07a">Apache Kafka</text>
+<text x="760" y="103" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#e8a43b">AWS MSK · high throughput</text>
+<text x="760" y="119" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#e8a43b">Schema Registry</text>
+<text x="760" y="135" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#a56a10">AsyncAPI contracts</text>
+
+<!-- Arrow Kafka → SQS -->
+<line x1="760" y1="156" x2="760" y2="204" stroke="#e8a43b" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+<!-- SQS -->
+<rect x="665" y="204" width="190" height="88" rx="8" fill="#12161e" stroke="#e8a43b" stroke-width="1" class="node" data-tip="AWS SQS&#10;• Decoupled point-to-point queuing&#10;• Dead Letter Queue (DLQ)&#10;• Retry with backoff policy&#10;• Idempotency enforcement&#10;• Complementary to Kafka streams"/>
+<text x="760" y="232" text-anchor="middle" font-size="13" font-weight="500" fill="#e8c07a">AWS SQS</text>
+<text x="760" y="250" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#e8a43b">point-to-point queuing</text>
+<text x="760" y="266" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#e8a43b">DLQ · retry · idempotency</text>
+<text x="760" y="282" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#a56a10">backoff policy</text>
+
+<!-- Arrow SQS → DB -->
+<line x1="760" y1="292" x2="760" y2="336" stroke="#e8a43b" stroke-width="1" fill="none" marker-end="url(#arr)" stroke-dasharray="4 3"/>
+
+<!-- RDS PostgreSQL -->
+<rect x="665" y="336" width="190" height="80" rx="8" fill="#12161e" stroke="#e8603b" stroke-width="1" class="node" data-tip="Amazon RDS — PostgreSQL&#10;• Primary relational datastore&#10;• Read replica for HA failover&#10;• Cross-region DR sync&#10;• Managed by Terraform IaC"/>
+<text x="760" y="364" text-anchor="middle" font-size="13" font-weight="500" fill="#e8907a">RDS PostgreSQL</text>
+<text x="760" y="382" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#e8603b">primary · read replica</text>
+<text x="760" y="398" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#e8603b">cross-region DR sync</text>
+
+<!-- ElastiCache Redis -->
+<rect x="665" y="440" width="190" height="72" rx="8" fill="#12161e" stroke="#8b6be8" stroke-width="1" class="node" data-tip="Amazon ElastiCache — Redis&#10;• Session cache · rate limiting&#10;• Idempotency key store&#10;• Replica for HA&#10;• Managed by Terraform"/>
+<text x="760" y="468" text-anchor="middle" font-size="13" font-weight="500" fill="#b09de8">ElastiCache Redis</text>
+<text x="760" y="486" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#8b6be8">session · idempotency</text>
+<text x="760" y="502" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#8b6be8">rate limiting · HA replica</text>
+
+<!-- ECS / EKS runtime note -->
+<rect x="665" y="538" width="190" height="64" rx="8" fill="rgba(92,184,92,0.06)" stroke="#5cb85c" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="760" y="562" text-anchor="middle" font-size="12" font-weight="500" fill="#8fd68f">AWS ECS / EKS</text>
+<text x="760" y="579" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#5cb85c">Docker containers · auto-scale</text>
+
+<!-- Lambda DR -->
+<rect x="665" y="622" width="190" height="64" rx="8" fill="rgba(232,164,59,0.06)" stroke="#e8a43b" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="760" y="646" text-anchor="middle" font-size="12" font-weight="500" fill="#e8c07a">AWS Lambda</text>
+<text x="760" y="663" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#e8a43b">serverless / DR warm standby</text>
+
+<!-- ══════════════════════════════════════════════════════
+     COLUMN 4 — OPS & GOVERNANCE  (x: 895..1240)
+     ══════════════════════════════════════════════════════ -->
+
+<rect x="895" y="20" width="345" height="820" rx="10" fill="none" stroke="#1f2533" stroke-width="1" stroke-dasharray="5 3"/>
+<text x="1067" y="42" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#4a5570" letter-spacing=".06em">OPERATIONS &amp; GOVERNANCE</text>
+
+<!-- Observability group -->
+<rect x="910" y="56" width="315" height="194" rx="9" fill="rgba(92,184,92,0.04)" stroke="#5cb85c" stroke-width="1"/>
+<text x="927" y="76" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#5cb85c" font-weight="500">OBSERVABILITY  ·  end-to-end visibility</text>
+
+<rect x="920" y="88" width="290" height="52" rx="6" fill="#111318" stroke="#2a3347" stroke-width="1" class="node" data-tip="OpenTelemetry — Distributed Tracing&#10;• End-to-end trace propagation&#10;• Correlation IDs across services&#10;• Integration with Grafana Tempo / Jaeger"/>
+<text x="1065" y="110" text-anchor="middle" font-size="12" font-weight="500" fill="#8fd68f">OpenTelemetry tracing</text>
+<text x="1065" y="126" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#5cb85c">distributed trace propagation</text>
+
+<rect x="920" y="148" width="137" height="52" rx="6" fill="#111318" stroke="#2a3347" stroke-width="1" class="node" data-tip="Prometheus&#10;• Real-time metrics scraping&#10;• Spring Actuator /actuator/prometheus&#10;• Custom alerting rules"/>
+<text x="988" y="171" text-anchor="middle" font-size="12" font-weight="500" fill="#8fd68f">Prometheus</text>
+<text x="988" y="187" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#5cb85c">metrics · alerts</text>
+
+<rect x="1072" y="148" width="138" height="52" rx="6" fill="#111318" stroke="#2a3347" stroke-width="1" class="node" data-tip="Grafana&#10;• Unified dashboards&#10;• API performance dashboards&#10;• Kafka consumer lag · SQS depth&#10;• Proactive alerting"/>
+<text x="1141" y="171" text-anchor="middle" font-size="12" font-weight="500" fill="#8fd68f">Grafana</text>
+<text x="1141" y="187" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#5cb85c">dashboards · alerting</text>
+
+<rect x="920" y="208" width="290" height="30" rx="5" fill="none"/>
+<text x="1065" y="228" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#2e7d32">CloudWatch Logs · ELK stack · structured logging</text>
+
+<!-- CI/CD group -->
+<rect x="910" y="270" width="315" height="168" rx="9" fill="rgba(59,143,232,0.04)" stroke="#3b8fe8" stroke-width="1"/>
+<text x="927" y="290" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#3b8fe8" font-weight="500">CI / CD  ·  automated delivery</text>
+
+<rect x="920" y="302" width="137" height="52" rx="6" fill="#111318" stroke="#2a3347" stroke-width="1" class="node" data-tip="Source Control&#10;• GitHub / GitLab Enterprise&#10;• Contract files: OpenAPI · AsyncAPI&#10;• PR-gated quality checks"/>
+<text x="988" y="324" text-anchor="middle" font-size="12" font-weight="500" fill="#85b7eb">GitHub / GitLab</text>
+<text x="988" y="340" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#3b8fe8">source control</text>
+
+<rect x="1072" y="302" width="138" height="52" rx="6" fill="#111318" stroke="#2a3347" stroke-width="1" class="node" data-tip="Jenkins · AWS CodePipeline&#10;• Build · test · quality gates&#10;• Contract testing (Pact)&#10;• Performance tests (k6)&#10;• Deploy to ECS / EKS&#10;• kubectl apply -k overlays/&lt;env&gt;"/>
+<text x="1141" y="324" text-anchor="middle" font-size="12" font-weight="500" fill="#85b7eb">Jenkins / CodePipeline</text>
+<text x="1141" y="340" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#3b8fe8">build · test · deploy</text>
+
+<rect x="920" y="364" width="290" height="52" rx="6" fill="#111318" stroke="#2a3347" stroke-width="1" class="node" data-tip="Terraform Infrastructure as Code&#10;• ECS / EKS cluster provisioning&#10;• RDS · ElastiCache · MSK Kafka&#10;• API Gateway config · SQS queues&#10;• Environment parity: dev / prod"/>
+<text x="1065" y="386" text-anchor="middle" font-size="12" font-weight="500" fill="#85b7eb">Terraform IaC</text>
+<text x="1065" y="402" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#3b8fe8">infra provisioning · env parity</text>
+
+<!-- Security & Governance group -->
+<rect x="910" y="458" width="315" height="168" rx="9" fill="rgba(232,96,59,0.04)" stroke="#e8603b" stroke-width="1"/>
+<text x="927" y="478" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#e8603b" font-weight="500">SECURITY &amp; GOVERNANCE</text>
+
+<rect x="920" y="490" width="137" height="52" rx="6" fill="#111318" stroke="#2a3347" stroke-width="1" class="node" data-tip="AWS Cognito&#10;• User pools &amp; identity federation&#10;• OAuth2 / OIDC token issuance&#10;• JWT validation across services&#10;• MFA support"/>
+<text x="988" y="512" text-anchor="middle" font-size="12" font-weight="500" fill="#e8907a">AWS Cognito</text>
+<text x="988" y="528" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#e8603b">OAuth2 · JWT · OIDC</text>
+
+<rect x="1072" y="490" width="138" height="52" rx="6" fill="#111318" stroke="#2a3347" stroke-width="1" class="node" data-tip="Secrets Management&#10;• AWS Secrets Manager&#10;• HashiCorp Vault (optional)&#10;• IAM role-based access&#10;• Auto-rotation policies"/>
+<text x="1141" y="512" text-anchor="middle" font-size="12" font-weight="500" fill="#e8907a">Secrets Manager</text>
+<text x="1141" y="528" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#e8603b">AWS Secrets · Vault</text>
+
+<rect x="920" y="554" width="290" height="52" rx="6" fill="#111318" stroke="#2a3347" stroke-width="1" class="node" data-tip="API Governance Framework&#10;• OpenAPI + AsyncAPI contract-first&#10;• Versioning strategy (v1/v2)&#10;• Deprecation + lifecycle policies&#10;• Backward compatibility enforcement&#10;• Pact consumer-driven contract tests"/>
+<text x="1065" y="576" text-anchor="middle" font-size="12" font-weight="500" fill="#e8907a">API lifecycle governance</text>
+<text x="1065" y="592" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#e8603b">versioning · deprecation · Pact tests</text>
+
+<!-- Container Registry -->
+<rect x="910" y="648" width="315" height="56" rx="8" fill="rgba(136,146,164,0.06)" stroke="#3d4657" stroke-width="1"/>
+<text x="1067" y="672" text-anchor="middle" font-size="12" font-weight="500" fill="#8892a4">Amazon ECR — container registry</text>
+<text x="1067" y="689" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#4a5570">Docker images · image scanning · tagging strategy</text>
+
+<!-- ══════════════════════════════════════════════════════
+     CROSS-COLUMN CONNECTORS
+     ══════════════════════════════════════════════════════ -->
+
+<!-- Entry → Services: API Gateway → Core API Service -->
+<path d="M 215 184 L 270 184" stroke="#1aab7a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+<!-- Entry → Services: Governance → Transformation -->
+<path d="M 215 292 L 270 226" stroke="#8b6be8" stroke-width="1" fill="none" marker-end="url(#arr)" stroke-dasharray="4 3"/>
+
+<!-- Entry → Services: Partner (left) → Partner svc (right) -->
+<path d="M 215 400 L 270 468" stroke="#e8a43b" stroke-width="1" fill="none" marker-end="url(#arr)" stroke-dasharray="4 3"/>
+
+<!-- Services → Events: Core API → Kafka (publish) -->
+<path d="M 610 96 L 665 96" stroke="#1aab7a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+<!-- Services → Events: Event Orch → Kafka (consume/produce) -->
+<path d="M 610 344 L 665 106" stroke="#e8a43b" stroke-width="1" fill="none" marker-end="url(#arr)" stroke-dasharray="4 3"/>
+
+<!-- Services → Events: Event Orch → SQS -->
+<path d="M 610 344 L 665 248" stroke="#e8a43b" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+<!-- Events → Ops: Kafka → Observability (logs/metrics) -->
+<path d="M 855 106 L 895 172" stroke="#5cb85c" stroke-width="1" fill="none" marker-end="url(#arr)" stroke-dasharray="4 3"/>
+
+<!-- Services → Ops: Core API → Observability -->
+<path d="M 610 96 L 895 142" stroke="#5cb85c" stroke-width="1" fill="none" marker-end="url(#arr)" stroke-dasharray="3 3"/>
+
+<!-- CI/CD deploy arrow to Services -->
+<path d="M 910 390 L 610 390" stroke="#3b8fe8" stroke-width="1" fill="none" marker-end="url(#arr)" stroke-dasharray="5 3"/>
+<text x="755" y="383" text-anchor="middle" font-size="10" font-family="'IBM Plex Mono',monospace" fill="#3b8fe8">deploy</text>
+
+<!-- Security (entry) → Cognito (ops) -->
+<path d="M 215 512 L 270 512 L 270 720 L 895 512" stroke="#e8603b" stroke-width="1" fill="none" marker-end="url(#arr)" stroke-dasharray="3 3"/>
+
+<!-- ══════════════════════════════════════════════════════
+     KUBERNETES DEPLOYMENT ZONE  (y: 720..960)
+     ══════════════════════════════════════════════════════ -->
+
+<rect x="20" y="720" width="1220" height="240" rx="10" fill="rgba(59,143,232,0.04)" stroke="#1a5fa5" stroke-width="1" stroke-dasharray="6 3"/>
+<text x="630" y="742" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#1a5fa5" letter-spacing=".07em">KUBERNETES DEPLOYMENT  ·  deployments/kubernetes/  ·  Kustomize overlays</text>
+
+<!-- kubectl apply command hint -->
+<text x="630" y="758" text-anchor="middle" font-size="10" font-family="'IBM Plex Mono',monospace" fill="#2a3347">kubectl apply -k deployments/kubernetes/overlays/&lt;env&gt;</text>
+
+<!-- ── Ingress ── -->
+<rect x="520" y="768" width="220" height="52" rx="7" fill="#0d1525" stroke="#3b8fe8" stroke-width="1.5" class="node" data-tip="Kubernetes Ingress&#10;deployments/kubernetes/base/ingress.yaml&#10;• Routes external traffic into cluster&#10;• Ties to AWS ALB / NGINX controller&#10;• TLS termination&#10;• Path-based routing to services"/>
+<text x="630" y="789" text-anchor="middle" font-size="13" font-weight="500" fill="#85b7eb">Kubernetes ingress</text>
+<text x="630" y="808" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#3b8fe8">base/ingress.yaml · ALB / NGINX</text>
+
+<!-- Ingress → pods arrow -->
+<line x1="630" y1="820" x2="630" y2="840" stroke="#3b8fe8" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+<!-- ── Four service pods ── -->
+<!-- core-api-deployment -->
+<rect x="35" y="840" width="260" height="80" rx="7" fill="#0d1525" stroke="#1aab7a" stroke-width="1" class="node" data-tip="core-api-service — K8s Deployment&#10;base/core-api-deployment.yaml&#10;• Spring Boot :8080&#10;• platform-runtime-config ConfigMap&#10;• Overlays: local / dev / prod&#10;• /actuator/health liveness probe"/>
+<text x="165" y="865" text-anchor="middle" font-size="12" font-weight="500" fill="#5dcaa5">core-api-service</text>
+<text x="165" y="882" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#1aab7a">core-api-deployment.yaml</text>
+<text x="165" y="898" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#0d6b4c">:8080 · liveness probe</text>
+
+<!-- orchestration-deployment -->
+<rect x="315" y="840" width="280" height="80" rx="7" fill="#0d1525" stroke="#e8a43b" stroke-width="1" class="node" data-tip="event-orchestration-service — K8s Deployment&#10;base/orchestration-deployment.yaml&#10;• Spring Boot :8081&#10;• Connects to Kafka / AWS MSK&#10;• Local overlay: in-cluster Kafka pod&#10;• Dev/prod: AWS MSK bootstrap servers"/>
+<text x="455" y="865" text-anchor="middle" font-size="12" font-weight="500" fill="#e8c07a">event-orchestration-service</text>
+<text x="455" y="882" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#e8a43b">orchestration-deployment.yaml</text>
+<text x="455" y="898" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#a56a10">:8081 · Kafka consumer/producer</text>
+
+<!-- transformation-deployment -->
+<rect x="615" y="840" width="280" height="80" rx="7" fill="#0d1525" stroke="#8b6be8" stroke-width="1" class="node" data-tip="transformation-service — K8s Deployment&#10;base/transformation-deployment.yaml&#10;• Spring Boot :8082&#10;• Canonical model engine&#10;• v1 / v2 payload versioning&#10;• platform-runtime-config ConfigMap"/>
+<text x="755" y="865" text-anchor="middle" font-size="12" font-weight="500" fill="#b09de8">transformation-service</text>
+<text x="755" y="882" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#8b6be8">transformation-deployment.yaml</text>
+<text x="755" y="898" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#5a3fa5">:8082 · canonical models</text>
+
+<!-- partner-deployment -->
+<rect x="915" y="840" width="280" height="80" rx="7" fill="#0d1525" stroke="#3b8fe8" stroke-width="1" class="node" data-tip="partner-onboarding-service — K8s Deployment&#10;base/partner-deployment.yaml&#10;• Spring Boot :8083&#10;• API key automation · sandbox&#10;• Mock server for contract tests&#10;• platform-runtime-config ConfigMap"/>
+<text x="1055" y="865" text-anchor="middle" font-size="12" font-weight="500" fill="#85b7eb">partner-onboarding-service</text>
+<text x="1055" y="882" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#3b8fe8">partner-deployment.yaml</text>
+<text x="1055" y="898" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#1a5fa5">:8083 · sandbox · mocks</text>
+
+<!-- Ingress fan-out lines to each pod -->
+<line x1="540" y1="840" x2="250" y2="840" stroke="#3b8fe8" stroke-width="1" fill="none" marker-end="url(#arr)" stroke-dasharray="4 3"/>
+<line x1="600" y1="840" x2="490" y2="840" stroke="#3b8fe8" stroke-width="1" fill="none" marker-end="url(#arr)" stroke-dasharray="4 3"/>
+<line x1="660" y1="840" x2="700" y2="840" stroke="#3b8fe8" stroke-width="1" fill="none" marker-end="url(#arr)" stroke-dasharray="4 3"/>
+<line x1="720" y1="840" x2="920" y2="840" stroke="#3b8fe8" stroke-width="1" fill="none" marker-end="url(#arr)" stroke-dasharray="4 3"/>
+
+<!-- ── Kustomize Overlays row ── -->
+<!-- outer grouping -->
+<rect x="35" y="932" width="1160" height="22" rx="4" fill="rgba(59,143,232,0.03)" stroke="#1f2533" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="630" y="947" text-anchor="middle" font-size="10" font-family="'IBM Plex Mono',monospace" fill="#2a3347">Kustomize overlays  ·  overlays/local  (+ kafka-deployment.yaml in-cluster)  ·  overlays/dev  (AWS MSK)  ·  overlays/prod  (AWS MSK)  ·  platform-runtime-config ConfigMap per env</text>
+
+<!-- CI/CD arrow down into K8s zone -->
+<path d="M 1065 440 L 1065 700 L 630 700 L 630 768" stroke="#3b8fe8" stroke-width="1" fill="none" marker-end="url(#arr)" stroke-dasharray="5 3"/>
+<text x="855" y="694" text-anchor="middle" font-size="10" font-family="'IBM Plex Mono',monospace" fill="#3b8fe8">kubectl apply -k</text>
+
+<!-- ══════════════════════════════════════════════════════
+     SERVICE FLOW SUMMARY BAR (bottom)
+     ══════════════════════════════════════════════════════ -->
+
+<rect x="20" y="970" width="1220" height="108" rx="8" fill="rgba(26,171,122,0.04)" stroke="#0d6b4c" stroke-width="1" stroke-dasharray="5 3"/>
+<text x="630" y="992" text-anchor="middle" font-size="11" font-family="'IBM Plex Mono',monospace" fill="#0d6b4c" font-weight="500">SERVICE FLOW</text>
+
+<!-- Flow nodes -->
+<rect x="35" y="1004" width="140" height="48" rx="5" fill="#0d1a14" stroke="#1aab7a" stroke-width="1"/>
+<text x="105" y="1024" text-anchor="middle" font-size="11" font-weight="500" fill="#5dcaa5">Client / Partner</text>
+<text x="105" y="1041" text-anchor="middle" font-size="10" font-family="'IBM Plex Mono',monospace" fill="#1aab7a">request</text>
+
+<line x1="175" y1="1028" x2="205" y2="1028" stroke="#1aab7a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+<rect x="205" y="1004" width="140" height="48" rx="5" fill="#0d1a14" stroke="#1aab7a" stroke-width="1"/>
+<text x="275" y="1024" text-anchor="middle" font-size="11" font-weight="500" fill="#5dcaa5">API gateway</text>
+<text x="275" y="1041" text-anchor="middle" font-size="10" font-family="'IBM Plex Mono',monospace" fill="#1aab7a">auth · route</text>
+
+<line x1="345" y1="1028" x2="375" y2="1028" stroke="#3b8fe8" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+<rect x="375" y="1004" width="155" height="48" rx="5" fill="#0d1a14" stroke="#3b8fe8" stroke-width="1"/>
+<text x="452" y="1024" text-anchor="middle" font-size="11" font-weight="500" fill="#85b7eb">K8s ingress</text>
+<text x="452" y="1041" text-anchor="middle" font-size="10" font-family="'IBM Plex Mono',monospace" fill="#3b8fe8">ALB · path routing</text>
+
+<line x1="530" y1="1028" x2="560" y2="1028" stroke="#1aab7a" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+<rect x="560" y="1004" width="140" height="48" rx="5" fill="#0d1a14" stroke="#8b6be8" stroke-width="1"/>
+<text x="630" y="1024" text-anchor="middle" font-size="11" font-weight="500" fill="#b09de8">Core API svc</text>
+<text x="630" y="1041" text-anchor="middle" font-size="10" font-family="'IBM Plex Mono',monospace" fill="#8b6be8">process · emit</text>
+
+<line x1="700" y1="1028" x2="730" y2="1028" stroke="#e8a43b" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+<rect x="730" y="1004" width="140" height="48" rx="5" fill="#0d1a14" stroke="#e8a43b" stroke-width="1"/>
+<text x="800" y="1024" text-anchor="middle" font-size="11" font-weight="500" fill="#e8c07a">Transform</text>
+<text x="800" y="1041" text-anchor="middle" font-size="10" font-family="'IBM Plex Mono',monospace" fill="#e8a43b">canonical model</text>
+
+<line x1="870" y1="1028" x2="900" y2="1028" stroke="#e8a43b" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+<rect x="900" y="1004" width="155" height="48" rx="5" fill="#0d1a14" stroke="#e8a43b" stroke-width="1"/>
+<text x="977" y="1024" text-anchor="middle" font-size="11" font-weight="500" fill="#e8c07a">Orchestrate / Saga</text>
+<text x="977" y="1041" text-anchor="middle" font-size="10" font-family="'IBM Plex Mono',monospace" fill="#e8a43b">Kafka · SQS · DLQ</text>
+
+<line x1="1055" y1="1028" x2="1085" y2="1028" stroke="#3b8fe8" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+<rect x="1085" y="1004" width="130" height="48" rx="5" fill="#0d1a14" stroke="#3b8fe8" stroke-width="1"/>
+<text x="1150" y="1024" text-anchor="middle" font-size="11" font-weight="500" fill="#85b7eb">Response</text>
+<text x="1150" y="1041" text-anchor="middle" font-size="10" font-family="'IBM Plex Mono',monospace" fill="#3b8fe8">202 · canonical payload</text>
+
+</svg>
+</div>
+
+<footer>
+  <div class="leg"><div class="leg-dot" style="background:#1aab7a"></div>API layer / services</div>
+  <div class="leg"><div class="leg-dot" style="background:#8b6be8"></div>Transformation / governance</div>
+  <div class="leg"><div class="leg-dot" style="background:#e8a43b"></div>Events / Kafka / SQS</div>
+  <div class="leg"><div class="leg-dot" style="background:#e8603b"></div>Security / resilience</div>
+  <div class="leg"><div class="leg-dot" style="background:#5cb85c"></div>Observability</div>
+  <div class="leg"><div class="leg-dot" style="background:#3b8fe8"></div>CI/CD / Terraform / Kubernetes</div>
+  <div class="leg"><div class="leg-dot" style="background:#3d4657;border:1px dashed #5f6e8f"></div>Async / dashed = event/data flow</div>
+</footer>
+
+<script>
+const tip = document.getElementById('tip');
+document.querySelectorAll('.node').forEach(el => {
+  el.style.cursor = 'pointer';
+  el.addEventListener('mouseenter', e => {
+    const t = el.getAttribute('data-tip');
+    if(t){ tip.textContent = t; tip.style.opacity = '1'; }
+  });
+  el.addEventListener('mousemove', e => {
+    tip.style.left = (e.clientX + 14) + 'px';
+    tip.style.top  = (e.clientY + 14) + 'px';
+  });
+  el.addEventListener('mouseleave', () => { tip.style.opacity = '0'; });
+});
+</script>
+</body>
+</html>

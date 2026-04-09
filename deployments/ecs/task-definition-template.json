@@ -1,0 +1,68 @@
+{
+  "family": "order-ingress-service-${environment}",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "${cpu}",
+  "memory": "${memory}",
+  "executionRoleArn": "${taskExecutionRoleArn}",
+  "taskRoleArn": "${taskRoleArn}",
+  "containerDefinitions": [
+    {
+      "name": "app",
+      "image": "${imageUri}",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "SPRING_PROFILES_ACTIVE",
+          "value": "${environment}"
+        },
+        {
+          "name": "SERVER_PORT",
+          "value": "8080"
+        },
+        {
+          "name": "AWS_REGION",
+          "value": "${awsRegion}"
+        },
+        {
+          "name": "AWS_MSK_BOOTSTRAP_SERVERS",
+          "value": "${mskBootstrapServers}"
+        },
+        {
+          "name": "PARTNER_SANDBOX_BASE_URL",
+          "value": "${partnerSandboxBaseUrl}"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "SPRING_SECURITY_USER_PASSWORD",
+          "valueFrom": "${partnerOnboardingPasswordSecretArn}"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/order-ingress-service/${environment}",
+          "awslogs-region": "${awsRegion}",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ],
+  "tags": [
+    {
+      "key": "Environment",
+      "value": "${environment}"
+    },
+    {
+      "key": "Project",
+      "value": "enterprise-api-integration-platform"
+    }
+  ]
+}

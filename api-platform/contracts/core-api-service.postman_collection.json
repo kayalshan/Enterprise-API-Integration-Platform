@@ -1,0 +1,138 @@
+{
+  "info": {
+    "name": "Enterprise Core API Service",
+    "description": "Postman collection for the core order ingestion API exposed by the Enterprise API and Event-Driven Integration Platform.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "cognitoGroup",
+      "value": "PARTNER"
+    },
+    {
+      "key": "requiredScope",
+      "value": "orders.write"
+    },
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    }
+  ],
+  "item": [
+    {
+      "name": "Create Order",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orderId\": \"ORD-1001\",\n  \"partnerId\": \"partner-sandbox\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/orders",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "orders"
+          ]
+        },
+        "description": "Accept an order for downstream asynchronous orchestration."
+      },
+      "response": [
+        {
+          "name": "Accepted",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"ORD-1001\",\n  \"partnerId\": \"partner-sandbox\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "orders"
+              ]
+            }
+          },
+          "status": "Accepted",
+          "code": 202,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"orderId\": \"ORD-1001\",\n  \"partnerId\": \"partner-sandbox\",\n  \"integrationStatus\": \"ACCEPTED\",\n  \"correlationId\": \"5f0c6a4b-d7a1-4f16-9bf1-a6c81293f2bc\",\n  \"acceptedAt\": \"2026-04-04T12:00:00Z\",\n  \"nextStep\": \"Order accepted for downstream event orchestration\"\n}"
+        },
+        {
+          "name": "Validation Error",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"ORD-1002\",\n  \"partnerId\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "orders"
+              ]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"code\": \"VALIDATION_ERROR\",\n  \"message\": \"Request validation failed\",\n  \"details\": [\n    \"partnerId: partnerId is required\"\n  ],\n  \"timestamp\": \"2026-04-04T12:00:00Z\"\n}"
+        }
+      ]
+    }
+  ]
+}
